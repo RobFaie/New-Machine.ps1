@@ -11,40 +11,13 @@ $null = Set-PackageSource -Name Chocolatey -Trusted
 
 'Installing software from Chocolatey'
 $ChocolateySoftwareToInstall = @(
-    'vcredist2005'
-    'vcredist2008'
-    'vcredist2010'
-    'vcredist2012'
-    'vcredist2013'
-    'vcredist2015'
-    #'7zip.install'
-    'adobereader'
-    'tunnelier'
-    'CrashPlan'
-    #'emet'
+    'vcredist-all'
     'fiddler4'
     'git.install'
-    #'google-chrome-x64'
-    'hexchat'
-    #'Keepass.install'
-    'git-credential-manager-for-windows'
-    #'visualstudiocode'
-    #'vscode-powershell'
-    #'openinvscode'
     'nmap'
-    'notepadplusplus.install'
-    'putty.install'
     'rdcman'
-    'slack'
-    #'WinMerge'
-    'wireshark'
-    'conemu'
-    #'VLC'
-    #'WinSCP.install'
-    'openssh'
-    'vmwareworkstation'
-    'glasswire'
     'itunes'
+    ''
 )
 
 Foreach ($Software in $ChocolateySoftwareToInstall)
@@ -56,16 +29,33 @@ Foreach ($Software in $ChocolateySoftwareToInstall)
 'Set PS Gallery to trusted'
 $null = Set-PackageSource -Name PSGallery -Trusted
 
+$ModulesToInstallAndReload = @(
+    'PackageManagement'
+    'PowerShellGet'
+)
+
+foreach($Module in $ModulesToInstallAndReload) {
+    $InstalledModule = Get-InstalledModule -Name $Module -ErrorAction SilentlyContinue
+    if ($null -EQ $InstalledModule) {
+        Install-Module -Name $Module -Confirm:$false
+    } else {
+        Update-Module -Name $Module -Confirm:$false
+    }
+    Import-module -Name $Module -Force
+}
+
+
+
 'Installing modules for PS gallery'
 $ModulesToInstall = @(
-    'AzureRM'
+    # 'AzureRM'
     'Azure'
-    'Posh-Git'
+    # 'Posh-Git'
     'cChoco'
     'cWSMan'
-    'HybridWorkerToolkit'
+    # 'HybridWorkerToolkit'
     'Pester'
-    'Posh-SSH'
+    # 'Posh-SSH'
     'PSScriptAnalyzer'
     'xActiveDirectory'
     'xAdcsDeployment'
@@ -79,21 +69,14 @@ $ModulesToInstall = @(
     'xRemoteDesktopAdmin'
     'xWebAdministration'
     'PSReadline'
-    'PowerShellGet'
-    'PackageManagement'
+
 )
 
 Foreach ($Module in $ModulesToInstall)
 {
     'Installing {0}' -f $Module
-    $null = Install-Module -Name $Module -Force -AllowClobber
+    $null = Install-Module -Name $Module -Confirm:$false
 }
-
-'Install PowerShell ISE Steroids into current user'
-Install-Module -Name 'ISESteroids' -Scope CurrentUser
-
-'Forcing up to new version of PowerShellGet'
-Import-Module -Name PowerShellGet -Force -MinimumVersion 1.1.0.0
 
 # Not 100% sure this is working
 #'Installing Office Pro Plus'
